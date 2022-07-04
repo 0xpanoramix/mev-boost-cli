@@ -1,10 +1,10 @@
-# panoramix-opensource-template
+# mev-boost-cli
 
-Project description goes here as well as the goal trying to achieve.
+Use as a playground to implement a CLI for mev-boost, without distractions.
 
 ## How does it work ?
 
-Describe how the projects works.
+Well it's a CLI.
 
 ## Getting started !
 
