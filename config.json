@@ -1,9 +1,15 @@
 {
-  "network": {
-    "mainnet": false
+  "gfv": {
+    "kiln": true
   },
   "log": {
     "json": true,
     "level": "debug"
+  },
+  "relay": {
+    "urls": [
+      "https://builder-relay-kiln.flashbots.net"
+    ],
+    "check": true
   }
 }

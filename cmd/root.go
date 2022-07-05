@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 	Use:   "mev-boost",
 	Short: "A middleware used by PoS Ethereum consensus clients to outsource block construction.",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println(viper.GetViper().Get(logLevelViperKey))
+		log.Println(viper.GetViper().Get(relayURLsViperKey))
 	},
 }
 
@@ -34,7 +34,8 @@ func init() {
 	genesisForkVersionFlags(viper.GetViper(), rootCmd.PersistentFlags())
 	// Register log flags.
 	logFlags(viper.GetViper(), rootCmd.PersistentFlags())
-	// Register <> flags.
+	// Register relay flags.
+	relayFlags(viper.GetViper(), rootCmd.PersistentFlags())
 }
 
 func initConfig() {
@@ -145,5 +146,32 @@ func logFlags(v *viper.Viper, f *pflag.FlagSet) {
 	err = v.BindPFlag(logLevelViperKey, f.Lookup(logLevelFlag))
 	cobra.CheckErr(err)
 	err = v.BindEnv(logLevelViperKey, logLevelEnv)
+	cobra.CheckErr(err)
+}
+
+const (
+	relayURLsFlag     = "relay-urls"
+	relayURLsViperKey = "relay.urls"
+	relayURLsEnv      = "BOOST_RELAY_URLS"
+
+	relayCheckFlag     = "relay-check"
+	relayCheckViperKey = "relay.check"
+	relayCheckEnv      = "BOOST_RELAY_CHECK"
+)
+
+// relayFlags is used to register and configure the relay parameters.
+func relayFlags(v *viper.Viper, f *pflag.FlagSet) {
+	// --relay-urls
+	f.StringArray(relayURLsFlag, []string{}, "help for --relay-urls flag")
+	err := v.BindPFlag(relayURLsViperKey, f.Lookup(relayURLsFlag))
+	cobra.CheckErr(err)
+	err = v.BindEnv(relayURLsViperKey, relayURLsEnv)
+	cobra.CheckErr(err)
+
+	// --relay-check
+	f.Bool(relayCheckFlag, false, "help for --relay-check flag")
+	err = v.BindPFlag(relayCheckViperKey, f.Lookup(relayCheckFlag))
+	cobra.CheckErr(err)
+	err = v.BindEnv(relayCheckViperKey, relayCheckEnv)
 	cobra.CheckErr(err)
 }

@@ -1,5 +1,9 @@
-network:
-  mainnet: false
+gfv:
+  kiln: true
 log:
   json: true
   level: "warn"
+relay:
+  urls:
+    - "https://builder-relay-kiln.flashbots.net"
+  check: true
