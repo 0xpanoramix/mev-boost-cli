@@ -34,6 +34,7 @@ func init() {
 	genesisForkVersionFlags(viper.GetViper(), rootCmd.PersistentFlags())
 	// Register log flags.
 	logFlags(viper.GetViper(), rootCmd.PersistentFlags())
+	// Register <> flags.
 }
 
 func initConfig() {
