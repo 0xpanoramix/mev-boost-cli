@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -15,9 +16,16 @@ var rootCmd = &cobra.Command{
 	Use:   "mev-boost",
 	Short: "A middleware used by PoS Ethereum consensus clients to outsource block construction.",
 	Run: func(cmd *cobra.Command, args []string) {
-		for _, key := range viper.GetViper().AllKeys() {
-			log.Printf("%s: %v", key, viper.GetViper().Get(key))
+		/*
+			for _, key := range viper.GetViper().AllKeys() {
+				log.Printf("%s: %v", key, viper.GetViper().Get(key))
+			}
+		*/
+		config, err := boostConfigFromViper()
+		if err != nil {
+			log.WithError(err).Error("could not start mev-boost")
 		}
+		log.Printf("Configuration: %+v", config)
 	},
 }
 
@@ -66,19 +74,54 @@ func initConfig() {
 	}
 }
 
+type boostConfig struct {
+	genesisForkVersionHex string
+	serverAddr            string
+}
+
+func boostConfigFromViper() (*boostConfig, error) {
+	config := &boostConfig{}
+
+	// Tries to set the genesis fork version.
+	if viper.GetViper().GetBool(genesisForkVersionMainnetViperKey) {
+		config.genesisForkVersionHex = genesisForkVersionMainnet
+	} else if viper.GetViper().GetBool(genesisForkVersionKilnViperKey) {
+		config.genesisForkVersionHex = genesisForkVersionKiln
+	} else if viper.GetViper().GetBool(genesisForkVersionRopstenViperKey) {
+		config.genesisForkVersionHex = genesisForkVersionRopsten
+	} else if viper.GetViper().GetBool(genesisForkVersionSepoliaViperKey) {
+		config.genesisForkVersionHex = genesisForkVersionSepolia
+	} else if viper.GetViper().GetString(genesisForkVersionCustomViperKey) != "" {
+		config.genesisForkVersionHex = viper.GetViper().GetString(genesisForkVersionCustomViperKey)
+	} else {
+		return nil, errors.New("invalid genesis fork version")
+	}
+
+	// Sets the server listening address.
+	config.serverAddr = viper.GetViper().GetString(serverAddrViperKey)
+
+	// Verifies the relay's format.
+	// parseRelayURLs(viper.GetViper().GetStringSlice(relayURLsViperKey))
+	return config, nil
+}
+
 const (
+	genesisForkVersionMainnet         = "0x00000000"
 	genesisForkVersionMainnetFlag     = "gfv-mainnet"
 	genesisForkVersionMainnetViperKey = "gfv.mainnet"
 	genesisForkVersionMainnetEnv      = "BOOST_GENESIS_FORK_VERSION_MAINNET"
 
+	genesisForkVersionKiln         = "0x70000069"
 	genesisForkVersionKilnFlag     = "gfv-kiln"
 	genesisForkVersionKilnViperKey = "gfv.kiln"
 	genesisForkVersionKilnEnv      = "BOOST_GENESIS_FORK_VERSION_KILN"
 
+	genesisForkVersionRopsten         = "0x80000069"
 	genesisForkVersionRopstenFlag     = "gfv-ropsten"
 	genesisForkVersionRopstenViperKey = "gfv.ropsten"
 	genesisForkVersionRopstenEnv      = "BOOST_GENESIS_FORK_VERSION_ROPSTEN"
 
+	genesisForkVersionSepolia         = "0x90000069"
 	genesisForkVersionSepoliaFlag     = "gfv-sepolia"
 	genesisForkVersionSepoliaViperKey = "gfv.sepolia"
 	genesisForkVersionSepoliaEnv      = "BOOST_GENESIS_FORK_VERSION_SEPOLIA"
