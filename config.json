@@ -1,5 +1,9 @@
 {
   "network": {
     "mainnet": false
+  },
+  "log": {
+    "json": true,
+    "level": "debug"
   }
 }

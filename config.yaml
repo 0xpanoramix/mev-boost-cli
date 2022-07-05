@@ -1,2 +1,5 @@
 network:
   mainnet: false
+log:
+  json: true
+  level: "warn"
