@@ -15,7 +15,9 @@ var rootCmd = &cobra.Command{
 	Use:   "mev-boost",
 	Short: "A middleware used by PoS Ethereum consensus clients to outsource block construction.",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println(viper.GetViper().Get(relayURLsViperKey))
+		for _, key := range viper.GetViper().AllKeys() {
+			log.Printf("%s: %v", key, viper.GetViper().Get(key))
+		}
 	},
 }
 
@@ -36,6 +38,8 @@ func init() {
 	logFlags(viper.GetViper(), rootCmd.PersistentFlags())
 	// Register relay flags.
 	relayFlags(viper.GetViper(), rootCmd.PersistentFlags())
+	// Register server flags.
+	serverFlags(viper.GetViper(), rootCmd.PersistentFlags())
 }
 
 func initConfig() {
@@ -142,7 +146,7 @@ func logFlags(v *viper.Viper, f *pflag.FlagSet) {
 	cobra.CheckErr(err)
 
 	// --log-level
-	f.String(logLevelFlag, "debug", "help for --log-level flag")
+	f.String(logLevelFlag, "info", "help for --log-level flag")
 	err = v.BindPFlag(logLevelViperKey, f.Lookup(logLevelFlag))
 	cobra.CheckErr(err)
 	err = v.BindEnv(logLevelViperKey, logLevelEnv)
@@ -173,5 +177,21 @@ func relayFlags(v *viper.Viper, f *pflag.FlagSet) {
 	err = v.BindPFlag(relayCheckViperKey, f.Lookup(relayCheckFlag))
 	cobra.CheckErr(err)
 	err = v.BindEnv(relayCheckViperKey, relayCheckEnv)
+	cobra.CheckErr(err)
+}
+
+const (
+	serverAddrFlag     = "server-addr"
+	serverAddrViperKey = "server.addr"
+	serverAddrEnv      = "BOOST_SERVER_ADDR"
+)
+
+// serverFlags is used to register and configure the server parameters.
+func serverFlags(v *viper.Viper, f *pflag.FlagSet) {
+	// --server-addr
+	f.String(serverAddrFlag, "localhost:18550", "help for --server-addr flag")
+	err := v.BindPFlag(serverAddrViperKey, f.Lookup(serverAddrFlag))
+	cobra.CheckErr(err)
+	err = v.BindEnv(serverAddrViperKey, serverAddrEnv)
 	cobra.CheckErr(err)
 }

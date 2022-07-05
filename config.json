@@ -11,5 +11,8 @@
       "https://builder-relay-kiln.flashbots.net"
     ],
     "check": true
+  },
+  "server": {
+    "addr": "localhost:28550"
   }
 }
